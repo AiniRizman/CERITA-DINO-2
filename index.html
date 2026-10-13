@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sistem Permainan Bahasa Melayu Tahun 2 - Pengembaraan Dino</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Fredoka', cursive, sans-serif;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            background-color: #2b1055;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .pixel-font {
+            font-family: 'Press Start 2P', monospace;
+        }
+
+        /* Mario Theme Background Styles */
+        .mario-bg {
+            background: linear-gradient(to bottom, #5c94fc 0%, #80b0ff 70%, #c0d8ff 100%);
+        }
+
+        .btn-mario-red {
+            background: linear-gradient(to bottom, #ff4747, #d01010);
+            box-shadow: 0 6px 0 #800000;
+        }
+        .btn-mario-red:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #800000;
+        }
+
+        .btn-mario-yellow {
+            background: linear-gradient(to bottom, #ffd700, #ffaa00);
+            box-shadow: 0 6px 0 #b37400;
+            color: #4a2c00;
+        }
+        .btn-mario-yellow:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #b37400;
+        }
+
+        .btn-mario-green {
+            background: linear-gradient(to bottom, #2ecc71, #27ae60);
+            box-shadow: 0 6px 0 #1b6336;
+        }
+        .btn-mario-green:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #1b6336;
+        }
+
+        .btn-mario-blue {
+            background: linear-gradient(to bottom, #3498db, #2980b9);
+            box-shadow: 0 6px 0 #1a4d6e;
+        }
+        .btn-mario-blue:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #1a4d6e;
+        }
+
+        /* D-Pad & Touch Controls */
+        .touch-btn {
+            background: rgba(255, 255, 255, 0.25);
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(4px);
+            border-radius: 50%;
+        }
+        .touch-btn:active {
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Pulse Animation for Stars */
+        @keyframes starGlow {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px #fff700); }
+            50% { transform: scale(1.15); filter: drop-shadow(0 0 15px #ffea00); }
+        }
+        .animate-star {
+            animation: starGlow 1.5s infinite;
+        }
+
+        /* Custom Scrollbar for Modals */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ffaa00;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between items-center bg-slate-900 select-none">
+
+    <!-- TOP HUD BAR -->
+    <header class="w-full bg-slate-800 border-b-4 border-yellow-400 p-2 sm:p-3 shadow-lg z-20 sticky top-0">
+        <div class="max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-2 text-xs sm:text-base">
+            <!-- Student Profile & Status -->
+            <div class="flex items-center space-x-2 bg-slate-700 px-3 py-1.5 rounded-full border border-slate-500">
+                <i class="fa-solid fa-user-ninja text-yellow-400 text-lg"></i>
+                <span id="hud-student-name" class="font-bold text-yellow-300 truncate max-w-[120px] sm:max-w-[200px]">Murid</span>
+            </div>
+
+            <!-- Game Stats -->
+            <div class="flex items-center space-x-3 sm:space-x-6 bg-slate-900/80 px-3 sm:px-5 py-1.5 rounded-2xl border-2 border-yellow-500">
+                <!-- Score -->
+                <div class="flex items-center space-x-1 sm:space-x-2" title="Markah">
+                    <i class="fa-solid fa-trophy text-yellow-400 text-sm sm:text-lg"></i>
+                    <span id="hud-score" class="pixel-font text-yellow-300 text-xs sm:text-sm">0</span>
+                </div>
+                <!-- Stars Collected -->
+                <div class="flex items-center space-x-1 sm:space-x-2" title="Bintang Dikutip">
+                    <i class="fa-solid fa-star text-amber-300 text-sm sm:text-lg animate-pulse"></i>
+                    <span class="font-bold text-white"><span id="hud-stars">0</span>/20</span>
+                </div>
+                <!-- Diamonds -->
+                <div class="flex items-center space-x-1 sm:space-x-2" title="Berlian Bonus">
+                    <i class="fa-solid fa-gem text-cyan-400 text-sm sm:text-lg"></i>
+                    <span id="hud-diamonds" class="font-bold text-cyan-300">0</span>
+                </div>
+                <!-- Timer -->
+                <div class="flex items-center space-x-1 sm:space-x-2" title="Masa">
+                    <i class="fa-solid fa-clock text-red-400 text-sm sm:text-lg"></i>
+                    <span id="hud-timer" class="pixel-font text-red-300 text-xs sm:text-sm">00:00</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center space-x-2">
+                <button onclick="openStoryModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-1 border-b-2 border-blue-800 transition active:scale-95">
+                    <i class="fa-solid fa-book-open"></i> <span class="hidden sm:inline">Cerita</span> Dino
+                </button>
+                <button onclick="openLeaderboardModal()" class="bg-purple-600 hover:bg-purple-500 text-white px-2.5 py-1.5 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-1 border-b-2 border-purple-800 transition active:scale-95">
+                    <i class="fa-solid fa-ranking-star text-yellow-300"></i> <span class="hidden sm:inline">Papan</span> Carta
+                </button>
+                <button id="sound-btn" onclick="toggleAudio()" class="bg-slate-700 hover:bg-slate-600 text-yellow-400 p-1.5 rounded-xl border border-slate-500">
+                    <i class="fa-solid fa-volume-high text-base"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN GAME CONTAINER -->
+    <main class="w-full max-w-5xl my-auto p-2 sm:p-4 flex flex-col items-center justify-center relative">
+        <!-- GAME CANVAS VIEWPORT -->
+        <div id="game-wrapper" class="relative w-full aspect-[16/9] max-h-[70vh] bg-sky-300 rounded-3xl overflow-hidden shadow-2xl border-4 border-yellow-400 mario-bg">
+            <!-- Canvas Element -->
+            <canvas id="gameCanvas" class="w-full h-full block cursor-pointer"></canvas>
+
+            <!-- On-Canvas Notice / Helper Bar -->
+            <div id="quick-star-hint" class="absolute top-2 left-1/2 -translate-x-1/2 bg-slate-900/80 backdrop-blur-md px-4 py-1.5 rounded-full border border-yellow-400 text-yellow-300 text-xs sm:text-sm font-bold shadow-md flex items-center gap-2 pointer-events-none">
+                <i class="fa-solid fa-person-running text-emerald-400 animate-pulse"></i>
+                <span>Dino bergerak automatik! Tekan 🚀 LOMPAT (atau Ketuk Skrin) untuk ⭐ Bintang!</span>
+            </div>
+
+            <!-- Start Game Overlay Screen -->
+            <div id="start-overlay" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col justify-center items-center p-6 text-center z-30">
+                <div class="max-w-md w-full bg-slate-800 border-4 border-yellow-400 rounded-3xl p-6 shadow-2xl space-y-4">
+                    <div class="inline-block p-3 bg-red-600 rounded-2xl shadow-lg border-2 border-yellow-300 animate-bounce">
+                        <i class="fa-solid fa-gamepad text-4xl text-yellow-300"></i>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-black text-yellow-400 tracking-wide">PENGEMBARAAN DINO</h1>
+                    <p class="text-slate-300 text-xs sm:text-sm">
+                        Bahasa Melayu Tahun 2 (Unit 22: Anak yang Baik)
+                    </p>
+
+                    <!-- Student Name Form -->
+                    <div class="text-left space-y-2 pt-2">
+                        <label class="text-yellow-300 font-bold text-xs sm:text-sm block">
+                            <i class="fa-solid fa-pen text-red-400 mr-1"></i> Masukkan Nama Murid:
+                        </label>
+                        <input type="text" id="input-student-name" placeholder="Contoh: Ali bin Ahmad" 
+                               class="w-full px-4 py-3 bg-slate-900 border-2 border-yellow-500 rounded-2xl text-white font-bold placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                    </div>
+
+                    <div class="pt-2">
+                        <button onclick="startGame()" class="w-full btn-mario-red text-white py-3.5 rounded-2xl font-black text-lg sm:text-xl tracking-wider transition transform hover:scale-105 uppercase flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-play"></i> MULA BERMAIN
+                        </button>
+                    </div>
+
+                    <div class="text-slate-400 text-xs pt-2 flex justify-around">
+                        <span><i class="fa-solid fa-keyboard text-yellow-400"></i> Kekunci / Sentuhan</span>
+                        <span><i class="fa-solid fa-star text-yellow-400"></i> 20 Soalan</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ON-SCREEN MOBILE / TOUCH CONTROLS -->
+        <div id="mobile-controls" class="w-full mt-3 flex justify-between items-center px-4 max-w-3xl">
+            <!-- Running Status Indicator -->
+            <div class="flex items-center gap-2 bg-slate-800/90 px-3.5 py-2 rounded-2xl border border-slate-600 text-xs text-yellow-300 shadow-md">
+                <i class="fa-solid fa-person-running text-emerald-400 text-base animate-bounce"></i>
+                <span class="font-bold">Larian Automatik</span>
+            </div>
+
+            <!-- Quick Star Picker Button -->
+            <button onclick="openStarPickerModal()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-4 py-3 rounded-2xl shadow-lg border-b-4 border-amber-700 text-xs sm:text-sm flex items-center gap-2 active:scale-95 transition">
+                <i class="fa-solid fa-star text-white text-base"></i> Senarai Bintang (20)
+            </button>
+
+            <!-- Prominent Jump Button -->
+            <div>
+                <button id="btn-jump" class="btn-mario-red text-white px-7 py-3.5 rounded-2xl font-black text-lg sm:text-xl shadow-xl flex items-center gap-2 border-b-4 border-red-900 active:scale-95 transition">
+                    <i class="fa-solid fa-circle-arrow-up text-2xl"></i> LOMPAT
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL 1: CERITA DINO TEXTBOOK STORY MODAL -->
+    <div id="story-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 border-4 border-yellow-400 rounded-3xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-red-600 to-amber-600 p-4 border-b-2 border-yellow-400 flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <span class="bg-yellow-400 text-slate-900 font-black px-2.5 py-1 rounded-lg text-xs">UNIT 22</span>
+                    <h2 class="text-lg sm:text-xl font-black text-white">Anak yang Baik: Cerita Dino</h2>
+                </div>
+                <button onclick="closeModal('story-modal')" class="text-white hover:text-yellow-300 text-2xl font-bold px-2">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Content Story -->
+            <div class="p-4 sm:p-6 overflow-y-auto space-y-4 text-slate-100 text-sm sm:text-base leading-relaxed bg-slate-900/60">
+                <div class="bg-amber-100 text-amber-950 p-4 sm:p-5 rounded-2xl border-2 border-amber-300 shadow-inner space-y-3 font-medium">
+                    <p class="italic text-amber-800 font-bold border-b border-amber-300 pb-2">
+                        "Hai, kawan-kawan! Nama saya Dino. Saya anak bongsu dalam keluarga tetapi saya tidak manja."
+                    </p>
+                    <p>
+                        "Ibu dan ayah mahu saya menjadi anak yang berjaya. Oleh itu, saya akan belajar bersungguh-sungguh supaya berjaya dalam pelajaran. Ibu serta ayah pasti berbangga akan saya."
+                    </p>
+                    <p>
+                        "Saya membuat kerja-kerja rumah tanpa disuruh oleh sesiapa. Setiap pagi, saya mengemas katil sendiri kerana tidak mahu menyusahkan ibu. Saya juga membasuh pinggan mangkuk selepas bersarapan, makan tengah hari atau makan malam."
+                    </p>
+                    <p>
+                        "Saya sayang akan semua anggota keluarga saya. Saya sayang akan ibu, ayah, abang, kakak dan adik."
+                    </p>
+                </div>
+
+                <div class="bg-blue-900/50 border border-blue-400 p-3 rounded-xl flex items-center space-x-3 text-xs sm:text-sm text-blue-200">
+                    <i class="fa-solid fa-lightbulb text-yellow-400 text-xl"></i>
+                    <span><strong>Fokus Pembelajaran:</strong> Mendengar, mengecam dan menyebut ayat majmuk serta kata majmuk dengan betul.</span>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="bg-slate-800 p-3 border-t border-slate-700 text-center">
+                <button onclick="closeModal('story-modal')" class="btn-mario-green text-white px-6 py-2 rounded-xl font-bold text-sm">
+                    Faham & Sambung Main
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: QUIZ QUESTION POPUP MODAL -->
+    <div id="quiz-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 border-4 border-yellow-400 rounded-3xl max-w-xl w-full p-5 sm:p-6 shadow-2xl relative space-y-4">
+            <!-- Header Badges -->
+            <div class="flex justify-between items-center border-b-2 border-slate-700 pb-3">
+                <div class="flex items-center space-x-2">
+                    <span class="bg-yellow-400 text-slate-950 font-black px-3 py-1 rounded-full text-xs sm:text-sm">
+                        <i class="fa-solid fa-star text-amber-600 mr-1"></i> Soalan <span id="quiz-q-num">1</span> / 20
+                    </span>
+                    <span class="text-xs text-slate-400 font-bold">Dino BM Tahun 2</span>
+                </div>
+                <span class="text-xs bg-emerald-900 text-emerald-300 border border-emerald-500 px-2.5 py-1 rounded-lg">
+                    +100 Markah
+                </span>
+            </div>
+
+            <!-- Question Text -->
+            <div class="py-2">
+                <h3 id="quiz-question-text" class="text-base sm:text-xl font-bold text-white leading-snug">
+                    Soalan akan dipaparkan di sini...
+                </h3>
+            </div>
+
+            <!-- Options Container -->
+            <div id="quiz-options-container" class="space-y-3 pt-2">
+                <!-- Option buttons injected dynamically -->
+            </div>
+
+            <!-- Feedback Box -->
+            <div id="quiz-feedback-box" class="hidden p-3.5 rounded-2xl border text-sm font-bold flex items-center space-x-3 transition-all">
+                <i id="quiz-feedback-icon" class="text-2xl"></i>
+                <div id="quiz-feedback-msg" class="text-xs sm:text-sm"></div>
+            </div>
+
+            <!-- Modal Footer button after answer -->
+            <div class="pt-2 flex justify-end">
+                <button id="quiz-next-btn" onclick="nextQuestionAfterAnswer()" class="hidden btn-mario-yellow font-black px-6 py-2.5 rounded-xl text-sm transition">
+                    Teruskan Pengembaraan <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: STAR PICKER MODAL (Select any star to answer) -->
+    <div id="star-picker-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 border-4 border-yellow-400 rounded-3xl max-w-xl w-full p-5 shadow-2xl flex flex-col max-h-[80vh]">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-3 mb-4">
+                <h3 class="text-lg font-bold text-yellow-400 flex items-center gap-2">
+                    <i class="fa-solid fa-star text-yellow-300"></i> Pilih Soalan Bintang (1 - 20)
+                </h3>
+                <button onclick="closeModal('star-picker-modal')" class="text-white text-2xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="star-grid" class="grid grid-cols-4 sm:grid-cols-5 gap-3 overflow-y-auto p-2">
+                <!-- Star buttons injected dynamically -->
+            </div>
+
+            <div class="pt-4 border-t border-slate-700 text-center text-xs text-slate-400">
+                * Bintang hijau bermaksud soalan telah dijawab dengan betul!
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: LEADERBOARD MODAL -->
+    <div id="leaderboard-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 border-4 border-yellow-400 rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl flex flex-col max-h-[85vh]">
+            <!-- Header -->
+            <div class="flex justify-between items-center border-b-2 border-slate-700 pb-3 mb-4">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-trophy text-2xl text-yellow-400"></i>
+                    <h3 class="text-xl font-black text-yellow-300">Papan Pendahulu (Carta Skor)</h3>
+                </div>
+                <button onclick="closeModal('leaderboard-modal')" class="text-white text-2xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-y-auto flex-1 border border-slate-700 rounded-2xl bg-slate-900/80">
+                <table class="w-full text-left text-xs sm:text-sm">
+                    <thead class="bg-slate-800 text-yellow-400 uppercase font-bold sticky top-0 border-b border-slate-700">
+                        <tr>
+                            <th class="p-3">#</th>
+                            <th class="p-3">Nama Murid</th>
+                            <th class="p-3">Markah</th>
+                            <th class="p-3">Bintang</th>
+                            <th class="p-3">Masa</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-tbody" class="divide-y divide-slate-800 text-slate-200">
+                        <!-- Entries injected dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Actions -->
+            <div class="pt-4 flex justify-between items-center">
+                <button onclick="clearLeaderboardData()" class="text-red-400 hover:text-red-300 text-xs font-bold underline">
+                    <i class="fa-solid fa-trash-can mr-1"></i> Padam Rekod (Cikgu)
+                </button>
+                <button onclick="closeModal('leaderboard-modal')" class="btn-mario-blue text-white px-5 py-2 rounded-xl font-bold text-xs">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 5: GAME OVER / VICTORY MODAL -->
+    <div id="victory-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 border-4 border-yellow-400 rounded-3xl max-w-lg w-full p-6 text-center shadow-2xl space-y-4">
+            <div class="text-5xl animate-bounce">
+                👑
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-black text-yellow-400">TAHNIAH & SYABAS!</h2>
+            <p id="victory-student-msg" class="text-slate-200 text-sm font-bold">
+                Anda telah berjaya menyelesaikan pengembaraan Dino!
+            </p>
+
+            <!-- Results Card -->
+            <div class="bg-slate-900 border-2 border-yellow-500 rounded-2xl p-4 text-left space-y-2 text-xs sm:text-sm">
+                <div class="flex justify-between border-b border-slate-800 pb-1.5">
+                    <span class="text-slate-400">Nama Murid:</span>
+                    <span id="res-student-name" class="font-bold text-yellow-300"></span>
+                </div>
+                <div class="flex justify-between border-b border-slate-800 pb-1.5">
+                    <span class="text-slate-400">Jumlah Markah:</span>
+                    <span id="res-score" class="pixel-font text-yellow-400 text-base">0</span>
+                </div>
+                <div class="flex justify-between border-b border-slate-800 pb-1.5">
+                    <span class="text-slate-400">Bintang Dijawab Betul:</span>
+                    <span id="res-stars" class="font-bold text-emerald-400">0 / 20</span>
+                </div>
+                <div class="flex justify-between border-b border-slate-800 pb-1.5">
+                    <span class="text-slate-400">Berlian Bonus:</span>
+                    <span id="res-diamonds" class="font-bold text-cyan-300">0</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-400">Masa Diambil:</span>
+                    <span id="res-time" class="font-bold text-red-300">00:00</span>
+                </div>
+            </div>
+
+            <!-- Grade Rating -->
+            <div id="res-grade-badge" class="bg-amber-500/20 border border-amber-400 text-amber-300 py-2 rounded-xl font-bold text-sm">
+                🌟🌟🌟🌟🌟 CEMERLANG!
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <button onclick="restartGame()" class="flex-1 btn-mario-red text-white py-3 rounded-xl font-bold text-sm">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> Main Semula
+                </button>
+                <button onclick="openLeaderboardModal()" class="flex-1 btn-mario-yellow text-slate-950 py-3 rounded-xl font-bold text-sm">
+                    <i class="fa-solid fa-trophy mr-1"></i> Papan Skor
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ===================================================================
+           1. QUESTION DATABASE (20 Questions based on "Cerita Dino" - BM Thn 2)
+           =================================================================== */
+        const questionsData = [
+            {
+                id: 1,
+                question: "Siapakah nama pencerita dalam petikan ini?",
+                options: ["Dino", "Cikgu", "Abang"],
+                answer: 0,
+                explanation: "Dalam petikan disebut: 'Hai, kawan-kawan! Nama saya Dino.'"
+            },
+            {
+                id: 2,
+                question: "Apakah kedudukan Dino dalam keluarganya?",
+                options: ["Anak sulung", "Anak bongsu", "Anak tunggal"],
+                answer: 1,
+                explanation: "Dino menyatakan: 'Saya anak bongsu dalam keluarga tetapi saya tidak manja.'"
+            },
+            {
+                id: 3,
+                question: "Adakah Dino seorang anak yang manja?",
+                options: ["Ya, Dino sangat manja", "Tidak, Dino tidak manja", "Dino manja dengan abang"],
+                answer: 1,
+                explanation: "Dino menegaskan bahawa dia tidak manja walaupun anak bongsu."
+            },
+            {
+                id: 4,
+                question: "Apakah kemahuan ibu dan ayah Dino?",
+                options: ["Mahu Dino menjadi anak yang berjaya", "Mahu Dino menjadi doktor sahaja", "Mahu Dino bermain sepanjang hari"],
+                answer: 0,
+                explanation: "Ibu dan ayah mahu Dino menjadi anak yang berjaya."
+            },
+            {
+                id: 5,
+                question: "Apakah yang Dino lakukan supaya berjaya dalam pelajaran?",
+                options: ["Belajar bersungguh-sungguh", "Tidur sepanjang hari", "Bermain permainan video"],
+                answer: 0,
+                explanation: "Dino belajar bersungguh-sungguh supaya berjaya dalam pelajaran."
+            },
+            {
+                id: 6,
+                question: "Apakah perasaan ibu dan ayah jika Dino berjaya?",
+                options: ["Berduka", "Berbangga", "Sedih"],
+                answer: 1,
+                explanation: "Petikan menyebut: 'Ibu serta ayah pasti berbangga akan saya.'"
+            },
+            {
+                id: 7,
+                question: "Bilakah Dino membuat kerja-kerja rumah?",
+                options: ["Selepas dimarahi oleh ibu", "Tanpa disuruh oleh sesiapa", "Apabila diberi wang"],
+                answer: 1,
+                explanation: "Dino membuat kerja-kerja rumah tanpa disuruh oleh sesiapa."
+            },
+            {
+                id: 8,
+                question: "Apakah yang dilakukan oleh Dino setiap pagi?",
+                options: ["Mengemas katil sendiri", "Membeli sarapan", "Mencuci basikal"],
+                answer: 0,
+                explanation: "Setiap pagi, Dino mengemas katil sendiri."
+            },
+            {
+                id: 9,
+                question: "Mengapakah Dino mengemas katilnya sendiri?",
+                options: ["Kerana takut dimarahi", "Kerana tidak mahu menyusahkan ibu", "Kerana disuruh abang"],
+                answer: 1,
+                explanation: "Dino mengemas katil sendiri kerana tidak mahu menyusahkan ibu."
+            },
+            {
+                id: 10,
+                question: "Bilakah Dino membasuh pinggan mangkuk?",
+                options: ["Selepas bersarapan, makan tengah hari atau makan malam", "Pada waktu malam sahaja", "Hujung minggu sahaja"],
+                answer: 0,
+                explanation: "Dino membasuh pinggan mangkuk selepas bersarapan, makan tengah hari atau makan malam."
+            },
+            {
+                id: 11,
+                question: "Siapakah yang disayangi oleh Dino?",
+                options: ["Ibu dan ayah sahaja", "Semua anggota keluarga", "Kawan-kawan sahaja"],
+                answer: 1,
+                explanation: "Dino berkata: 'Saya sayang akan semua anggota keluarga saya.'"
+            },
+            {
+                id: 12,
+                question: "Manakah antara berikut MERUPAKAN Kata Majmuk dalam petikan?",
+                options: ["Pinggan mangkuk", "Kerja-kerja", "Kawan-kawan"],
+                answer: 0,
+                explanation: "'Pinggan mangkuk' ialah kata majmuk."
+            },
+            {
+                id: 13,
+                question: "Manakah juga contoh Kata Majmuk yang terdapat dalam cerita ini?",
+                options: ["Tengah hari", "Membasuh", "Pelajaran"],
+                answer: 0,
+                explanation: "'Tengah hari' terdiri daripada dua perkataan yang membentuk kata majmuk."
+            },
+            {
+                id: 14,
+                question: "Pilih lagi satu Kata Majmuk dari cerita Dino di bawah:",
+                options: ["Makan malam", "Bersarapan", "Berbangga"],
+                answer: 0,
+                explanation: "'Makan malam' ialah kata majmuk."
+            },
+            {
+                id: 15,
+                question: "Isikan tempat kosong: Dino belajar bersungguh-sungguh ______ berjaya.",
+                options: ["lalu", "supaya", "atau"],
+                answer: 1,
+                explanation: "Kata hubung yang betul untuk pembentukan ayat majmuk ialah 'supaya'."
+            },
+            {
+                id: 16,
+                question: "Dino membasuh pinggan mangkuk selepas bersarapan ______ makan tengah hari.",
+                options: ["atau", "tetapi", "kerana"],
+                answer: 0,
+                explanation: "Petikan menggunakan kata hubung 'atau'."
+            },
+            {
+                id: 17,
+                question: "Manakah contoh Ayat Majmuk daripada cerita ini?",
+                options: ["Nama saya Dino.", "Ibu dan ayah mahu saya menjadi anak yang berjaya.", "Saya anak bongsu."],
+                answer: 1,
+                explanation: "Ayat ini menggunakan kata hubung 'dan' untuk mengabungkan dua klausa."
+            },
+            {
+                id: 18,
+                question: "Apakah maksud bagi istilah 'anak bongsu'?",
+                options: ["Anak yang paling tua", "Anak yang paling muda / terakhir lahir", "Anak angkat"],
+                answer: 1,
+                explanation: "Anak bongsu bermaksud anak yang dilahirkan paling akhir dalam keluarga."
+            },
+            {
+                id: 19,
+                question: "Mengapakah Cikgu berharap murid-murid mengikut teladan Dino?",
+                options: ["Kerana Dino anak yang rajin dan bertimbang rasa", "Kerana Dino suka tidur", "Kerana Dino tiada kerja"],
+                answer: 0,
+                explanation: "Dino menunjukkan teladan yang baik seperti rajin membantu dan menghormati ibu bapa."
+            },
+            {
+                id: 20,
+                question: "Apakah pengajaran utama daripada Cerita Dino?",
+                options: ["Kita hendaklah rajin membantu keluarga dan belajar bersungguh-sungguh", "Kita perlu menunggu disuruh baru buat kerja", "Kita tak perlu kemas bilik sendiri"],
+                answer: 0,
+                explanation: "Pengajaran penting: Rajin membantu keluarga dan belajar bersungguh-sungguh."
+            }
+        ];
+
+        /* ===================================================================
+           2. GAME GLOBAL STATE VARIABLES
+           =================================================================== */
+        let studentName = "Murid";
+        let score = 0;
+        let diamondsCollected = 0;
+        let starsAnswered = new Array(20).fill(false); // Track solved stars
+        let currentQuestionIndex = null;
+        let gameTimeSeconds = 0;
+        let timerInterval = null;
+        let gameActive = false;
+        let isAudioMuted = false;
+
+        // Web Audio Synthesizer Context
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (isAudioMuted) return;
+            try {
+                initAudio();
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'jump') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.exponentialRampToValueAtTime(400, now + 0.15);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                } else if (type === 'coin') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                } else if (type === 'star') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.08);
+                    osc.frequency.setValueAtTime(783.99, now + 0.16);
+                    osc.frequency.setValueAtTime(1046.50, now + 0.24);
+                    gain.gain.setValueAtTime(0.4, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'hit') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(200, now);
+                    osc.frequency.exponentialRampToValueAtTime(60, now + 0.25);
+                    gain.gain.setValueAtTime(0.4, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.1);
+                    osc.frequency.setValueAtTime(783.99, now + 0.2);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, now);
+                    osc.frequency.setValueAtTime(140, now + 0.15);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                }
+            } catch(e) {
+                console.log("Audio play error", e);
+            }
+        }
+
+        function toggleAudio() {
+            isAudioMuted = !isAudioMuted;
+            const btn = document.getElementById('sound-btn');
+            btn.innerHTML = isAudioMuted ? 
+                '<i class="fa-solid fa-volume-xmark text-red-400"></i>' : 
+                '<i class="fa-solid fa-volume-high text-yellow-400"></i>';
+        }
+
+        /* ===================================================================
+           3. CANVAS ENGINE & MARIO WORLD LOGIC
+           =================================================================== */
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Virtual internal canvas dimensions
+        const WORLD_WIDTH = 3800;
+        const CANVAS_HEIGHT = 450;
+        canvas.width = 1000;
+        canvas.height = CANVAS_HEIGHT;
+
+        // Player (Dino) Object
+        const player = {
+            x: 80,
+            y: 300,
+            width: 38,
+            height: 48,
+            vx: 0,
+            vy: 0,
+            autoSpeed: 2.8,
+            jumpPower: -11.0,
+            grounded: false,
+            facingRight: true,
+            invulnerableTimer: 0
+        };
+
+        // Inputs
+        const keys = {
+            up: false
+        };
+
+        // Camera Offset
+        let cameraX = 0;
+
+        // Platforms
+        const platforms = [];
+        // Diamonds
+        const diamonds = [];
+        // Stars (20 total)
+        const stars = [];
+        // Monsters
+        const monsters = [];
+
+        function buildMarioWorld() {
+            platforms.length = 0;
+            diamonds.length = 0;
+            stars.length = 0;
+            monsters.length = 0;
+
+            // Ground floors with gaps
+            const groundSegments = [
+                { x: 0, w: 900 },
+                { x: 1000, w: 800 },
+                { x: 1900, w: 900 },
+                { x: 2900, w: 900 }
+            ];
+
+            groundSegments.forEach(seg => {
+                platforms.push({ x: seg.x, y: 380, width: seg.w, height: 70, type: 'ground' });
+            });
+
+            // Elevated Platforms & Brick Blocks
+            const platformCoords = [
+                { x: 250, y: 270, w: 180 },
+                { x: 500, y: 220, w: 200 },
+                { x: 800, y: 280, w: 150 },
+                { x: 1100, y: 250, w: 220 },
+                { x: 1400, y: 200, w: 180 },
+                { x: 1650, y: 270, w: 200 },
+                { x: 1950, y: 230, w: 250 },
+                { x: 2300, y: 270, w: 200 },
+                { x: 2600, y: 200, w: 220 },
+                { x: 2950, y: 260, w: 240 },
+                { x: 3300, y: 220, w: 250 }
+            ];
+
+            platformCoords.forEach(p => {
+                platforms.push({ x: p.x, y: p.y, width: p.w, height: 28, type: 'brick' });
+            });
+
+            // Green Pipes
+            const pipes = [
+                { x: 420, y: 310, w: 50, h: 70 },
+                { x: 1250, y: 300, w: 55, h: 80 },
+                { x: 2150, y: 290, w: 60, h: 90 },
+                { x: 3100, y: 300, w: 55, h: 80 }
+            ];
+
+            pipes.forEach(p => {
+                platforms.push({ x: p.x, y: p.y, width: p.w, height: p.h, type: 'pipe' });
+            });
+
+            // Place 20 Stars along the level map
+            const starXPositions = [
+                280, 520, 720, 850, 1150, 1350, 1500, 1720, 2000, 2200,
+                2400, 2650, 2850, 3020, 3200, 3350, 3500, 3600, 3680, 3750
+            ];
+
+            starXPositions.forEach((sx, idx) => {
+                let sy = 160;
+                if (idx % 2 === 0) sy = 220;
+                if (idx % 3 === 0) sy = 310;
+                stars.push({
+                    id: idx,
+                    x: sx,
+                    y: sy,
+                    radius: 16,
+                    pulse: 0
+                });
+            });
+
+            // Place Bonus Diamonds 💎
+            for (let x = 200; x < WORLD_WIDTH - 200; x += 130) {
+                // avoid overlap with stars too closely
+                diamonds.push({
+                    x: x,
+                    y: 280 - (Math.sin(x) * 60),
+                    width: 20,
+                    height: 20,
+                    collected: false
+                });
+            }
+
+            // Place Roaming Monsters 👾
+            const monsterSpawns = [
+                { x: 480, minX: 430, maxX: 680 },
+                { x: 950, minX: 850, maxX: 1050 },
+                { x: 1380, minX: 1300, maxX: 1550 },
+                { x: 1800, minX: 1700, maxX: 1900 },
+                { x: 2250, minX: 2180, maxX: 2380 },
+                { x: 2750, minX: 2650, maxX: 2880 },
+                { x: 3250, minX: 3180, maxX: 3400 }
+            ];
+
+            monsterSpawns.forEach(m => {
+                monsters.push({
+                    x: m.x,
+                    y: 350,
+                    width: 32,
+                    height: 30,
+                    vx: 1.0,
+                    minX: m.minX,
+                    maxX: m.maxX
+                });
+            });
+        }
+
+        /* Physics & Render Loop */
+        function updatePhysics() {
+            if (!gameActive || currentQuestionIndex !== null) return;
+
+            // Auto Movement Forward (Dino runs automatically!)
+            player.vx = player.autoSpeed;
+            player.facingRight = true;
+
+            // Jump Impulse
+            if (keys.up && player.grounded) {
+                player.vy = player.jumpPower;
+                player.grounded = false;
+                playSound('jump');
+            }
+
+            // Gravity
+            player.vy += 0.58;
+
+            // Update Position
+            player.x += player.vx;
+            player.y += player.vy;
+
+            // World bounds
+            if (player.x < 0) player.x = 0;
+            if (player.x > WORLD_WIDTH - player.width) player.x = WORLD_WIDTH - player.width;
+
+            // Pit Fall Check
+            if (player.y > CANVAS_HEIGHT + 100) {
+                // Respawn back to latest ground platform
+                player.x = Math.max(80, player.x - 200);
+                player.y = 100;
+                player.vy = 0;
+                score = Math.max(0, score - 20);
+                updateHUD();
+                playSound('hit');
+            }
+
+            // Platform Collision Detection
+            player.grounded = false;
+            platforms.forEach(p => {
+                // Simple AABB check
+                if (player.x < p.x + p.width &&
+                    player.x + player.width > p.x &&
+                    player.y < p.y + p.height &&
+                    player.y + player.height > p.y) {
+
+                    // Landing on top
+                    if (player.vy > 0 && (player.y + player.height - player.vy) <= p.y + 12) {
+                        player.y = p.y - player.height;
+                        player.vy = 0;
+                        player.grounded = true;
+                    } else if (player.x + player.width - player.vx <= p.x) {
+                        // Standing against vertical obstacle until player jumps over
+                        player.x = p.x - player.width;
+                    }
+                }
+            });
+
+            // Camera follow
+            cameraX = player.x - canvas.width / 3;
+            if (cameraX < 0) cameraX = 0;
+            if (cameraX > WORLD_WIDTH - canvas.width) cameraX = WORLD_WIDTH - canvas.width;
+
+            // Monster Movement & Collision
+            monsters.forEach(m => {
+                m.x += m.vx;
+                if (m.x < m.minX || m.x > m.maxX) {
+                    m.vx *= -1;
+                }
+
+                // Hit detection with player
+                if (player.invulnerableTimer <= 0) {
+                    if (player.x < m.x + m.width &&
+                        player.x + player.width > m.x &&
+                        player.y < m.y + m.height &&
+                        player.y + player.height > m.y) {
+                        
+                        // Deduct score penalty for monster hit!
+                        score = Math.max(0, score - 30);
+                        player.invulnerableTimer = 60; // 1 sec invulnerability
+                        player.vy = -6; // bounce
+                        playSound('hit');
+                        updateHUD();
+                    }
+                }
+            });
+
+            if (player.invulnerableTimer > 0) player.invulnerableTimer--;
+
+            // Diamonds Collection
+            diamonds.forEach(d => {
+                if (!d.collected) {
+                    if (player.x < d.x + d.width &&
+                        player.x + player.width > d.x &&
+                        player.y < d.y + d.height &&
+                        player.y + player.height > d.y) {
+                        
+                        d.collected = true;
+                        diamondsCollected++;
+                        score += 50;
+                        playSound('coin');
+                        updateHUD();
+                    }
+                }
+            });
+
+            // Star Collection (Triggers Quiz!)
+            stars.forEach(s => {
+                if (!starsAnswered[s.id]) {
+                    const dist = Math.hypot((player.x + player.width/2) - s.x, (player.y + player.height/2) - s.y);
+                    if (dist < 32) {
+                        // Open Quiz for this Star
+                        openQuizModal(s.id);
+                    }
+                }
+            });
+        }
+
+        /* Render Drawing Loop */
+        function drawWorld() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+            ctx.translate(-cameraX, 0);
+
+            // Draw Parallax Clouds
+            ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+            for (let c = 0; c < WORLD_WIDTH; c += 400) {
+                ctx.beginPath();
+                ctx.arc(c + 50, 60, 25, 0, Math.PI * 2);
+                ctx.arc(c + 80, 50, 35, 0, Math.PI * 2);
+                ctx.arc(c + 110, 60, 25, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Draw Platforms
+            platforms.forEach(p => {
+                if (p.type === 'ground') {
+                    // Top Grass layer
+                    ctx.fillStyle = '#70c837';
+                    ctx.fillRect(p.x, p.y, p.width, 16);
+                    // Underground Dirt
+                    ctx.fillStyle = '#b84418';
+                    ctx.fillRect(p.x, p.y + 16, p.width, p.height - 16);
+                    // Dirt texture spots
+                    ctx.fillStyle = '#8f300c';
+                    for (let bx = p.x + 10; bx < p.x + p.width; bx += 30) {
+                        ctx.fillRect(bx, p.y + 25, 12, 12);
+                    }
+                } else if (p.type === 'brick') {
+                    ctx.fillStyle = '#d05828';
+                    ctx.fillRect(p.x, p.y, p.width, p.height);
+                    ctx.strokeStyle = '#200';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(p.x, p.y, p.width, p.height);
+                    // Brick pattern
+                    ctx.fillStyle = '#f89070';
+                    ctx.fillRect(p.x + 2, p.y + 2, p.width - 4, 4);
+                } else if (p.type === 'pipe') {
+                    // Pipe body
+                    ctx.fillStyle = '#00a800';
+                    ctx.fillRect(p.x + 4, p.y + 12, p.width - 8, p.height - 12);
+                    // Pipe top rim
+                    ctx.fillStyle = '#00d800';
+                    ctx.fillRect(p.x, p.y, p.width, 14);
+                    ctx.strokeStyle = '#004000';
+                    ctx.strokeRect(p.x, p.y, p.width, 14);
+                }
+            });
+
+            // Draw Diamonds 💎
+            diamonds.forEach(d => {
+                if (!d.collected) {
+                    ctx.fillStyle = '#00f0ff';
+                    ctx.beginPath();
+                    ctx.moveTo(d.x + d.width/2, d.y);
+                    ctx.lineTo(d.x + d.width, d.y + d.height/2);
+                    ctx.lineTo(d.x + d.width/2, d.y + d.height);
+                    ctx.lineTo(d.x, d.y + d.height/2);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                }
+            });
+
+            // Draw Stars ⭐
+            stars.forEach(s => {
+                s.pulse += 0.05;
+                const scale = 1 + Math.sin(s.pulse) * 0.15;
+                const answered = starsAnswered[s.id];
+
+                ctx.save();
+                ctx.translate(s.x, s.y);
+                ctx.scale(scale, scale);
+
+                // Draw Star Shape
+                ctx.fillStyle = answered ? '#2ecc71' : '#f1c40f'; // Green if solved, Yellow if pending
+                ctx.beginPath();
+                for (let i = 0; i < 5; i++) {
+                    ctx.lineTo(Math.cos((18 + i * 72) * Math.PI / 180) * 16, -Math.sin((18 + i * 72) * Math.PI / 180) * 16);
+                    ctx.lineTo(Math.cos((54 + i * 72) * Math.PI / 180) * 7, -Math.sin((54 + i * 72) * Math.PI / 180) * 7);
+                }
+                ctx.closePath();
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                // Draw Star Number
+                ctx.fillStyle = '#000000';
+                ctx.font = 'bold 10px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(s.id + 1, 0, 1);
+
+                ctx.restore();
+            });
+
+            // Draw Monsters 👾 (Goomba-like style)
+            monsters.forEach(m => {
+                ctx.fillStyle = '#8b4513';
+                // Dome head
+                ctx.beginPath();
+                ctx.arc(m.x + m.width/2, m.y + m.height/2, m.width/2, Math.PI, 0, false);
+                ctx.fill();
+                ctx.fillRect(m.x, m.y + m.height/2, m.width, m.height/2);
+
+                // Angry Eyes
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(m.x + 6, m.y + 8, 6, 8);
+                ctx.fillRect(m.x + 20, m.y + 8, 6, 8);
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(m.x + 8, m.y + 10, 3, 4);
+                ctx.fillRect(m.x + 20, m.y + 10, 3, 4);
+            });
+
+            // Draw Player (Dino - Mario Dino Stylized Sprite)
+            ctx.save();
+            if (player.invulnerableTimer % 6 < 3) { // Flashing effect when hurt
+                ctx.translate(player.x + player.width/2, player.y + player.height/2);
+                if (!player.facingRight) ctx.scale(-1, 1);
+
+                // Dino Body (Green Dino with Mario Red Cap)
+                ctx.fillStyle = '#27ae60'; // Green Dino
+                ctx.beginPath();
+                ctx.roundRect(-16, -18, 32, 36, [10, 10, 6, 6]);
+                ctx.fill();
+
+                // Dino Belly
+                ctx.fillStyle = '#f1c40f';
+                ctx.fillRect(-8, 2, 16, 14);
+
+                // Red Mario Hat
+                ctx.fillStyle = '#e74c3c';
+                ctx.fillRect(-18, -24, 34, 8);
+                ctx.fillRect(-12, -28, 24, 6);
+
+                // Eye
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(2, -14, 8, 8);
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(6, -12, 4, 4);
+
+                // Overalls (Blue Mario Overalls)
+                ctx.fillStyle = '#2980b9';
+                ctx.fillRect(-14, 6, 28, 14);
+            }
+            ctx.restore();
+
+            // Finish Flag Pipe at the End of Level
+            ctx.fillStyle = '#f1c40f';
+            ctx.fillRect(3750, 180, 8, 200); // Flag pole
+            ctx.fillStyle = '#e74c3c';
+            ctx.beginPath();
+            ctx.moveTo(3758, 180);
+            ctx.lineTo(3810, 205);
+            ctx.lineTo(3758, 230);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        function gameLoop() {
+            updatePhysics();
+            drawWorld();
+            requestAnimationFrame(gameLoop);
+        }
+
+        /* ===================================================================
+           4. GAME CONTROL LISTENERS & TIMER LOGIC
+           =================================================================== */
+        window.addEventListener('keydown', e => {
+            if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W' || e.key === ' ') {
+                keys.up = true;
+                e.preventDefault();
+            }
+        });
+
+        window.addEventListener('keyup', e => {
+            if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W' || e.key === ' ') keys.up = false;
+        });
+
+        // Touch Jump Button Listener
+        const btnJump = document.getElementById('btn-jump');
+        const triggerJump = (e) => {
+            if (e) e.preventDefault();
+            if (player.grounded && gameActive && currentQuestionIndex === null) {
+                player.vy = player.jumpPower;
+                player.grounded = false;
+                playSound('jump');
+            }
+        };
+
+        btnJump.addEventListener('touchstart', triggerJump);
+        btnJump.addEventListener('mousedown', triggerJump);
+
+        // Tap/Click directly on game canvas to jump as well
+        canvas.addEventListener('click', triggerJump);
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (gameActive && currentQuestionIndex === null) {
+                    gameTimeSeconds++;
+                    updateHUD();
+                }
+            }, 1000);
+        }
+
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60).toString().padStart(2, '0');
+            const s = (sec % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function updateHUD() {
+            document.getElementById('hud-student-name').innerText = studentName;
+            document.getElementById('hud-score').innerText = score;
+            document.getElementById('hud-diamonds').innerText = diamondsCollected;
+            const solvedCount = starsAnswered.filter(Boolean).length;
+            document.getElementById('hud-stars').innerText = solvedCount;
+            document.getElementById('hud-timer').innerText = formatTime(gameTimeSeconds);
+        }
+
+        /* ===================================================================
+           5. START GAME & MODAL HANDLERS
+           =================================================================== */
+        function startGame() {
+            const input = document.getElementById('input-student-name').value.trim();
+            if (!input) {
+                alertModal("Sila masukkan nama anda untuk mula bermain!");
+                return;
+            }
+            studentName = input;
+            score = 0;
+            diamondsCollected = 0;
+            starsAnswered.fill(false);
+            gameTimeSeconds = 0;
+            gameActive = true;
+
+            buildMarioWorld();
+            player.x = 80;
+            player.y = 300;
+
+            document.getElementById('start-overlay').classList.add('hidden');
+            updateHUD();
+            startTimer();
+            initAudio();
+        }
+
+        function restartGame() {
+            closeModal('victory-modal');
+            document.getElementById('start-overlay').classList.remove('hidden');
+            gameActive = false;
+        }
+
+        /* Modal Helper Functions */
+        function openStoryModal() {
+            document.getElementById('story-modal').classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function alertModal(msg) {
+            // Safe replacement for alert()
+            const div = document.createElement('div');
+            div.className = "fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4";
+            div.innerHTML = `
+                <div class="bg-slate-800 border-4 border-yellow-400 p-6 rounded-3xl max-w-sm text-center space-y-4">
+                    <p class="text-white font-bold text-base">${msg}</p>
+                    <button onclick="this.parentElement.parentElement.remove()" class="btn-mario-yellow font-black px-6 py-2 rounded-xl text-sm">
+                        OK
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(div);
+        }
+
+        /* ===================================================================
+           6. QUIZ SYSTEM LOGIC
+           =================================================================== */
+        function openQuizModal(starIndex) {
+            currentQuestionIndex = starIndex;
+            const qData = questionsData[starIndex];
+
+            document.getElementById('quiz-q-num').innerText = starIndex + 1;
+            document.getElementById('quiz-question-text').innerText = qData.question;
+
+            const optsContainer = document.getElementById('quiz-options-container');
+            optsContainer.innerHTML = '';
+
+            // Reset feedback box & next button
+            const fbBox = document.getElementById('quiz-feedback-box');
+            fbBox.className = "hidden p-3.5 rounded-2xl border text-sm font-bold flex items-center space-x-3";
+            document.getElementById('quiz-next-btn').classList.add('hidden');
+
+            qData.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-3.5 sm:p-4 bg-slate-700 hover:bg-slate-600 border-2 border-slate-500 rounded-2xl font-semibold text-sm sm:text-base text-white transition flex items-center space-x-3 active:scale-98";
+                btn.innerHTML = `
+                    <span class="w-7 h-7 rounded-full bg-slate-900 text-yellow-400 font-bold flex items-center justify-center border border-slate-600 text-xs">${String.fromCharCode(65 + idx)}</span>
+                    <span>${opt}</span>
+                `;
+                btn.onclick = () => submitAnswer(idx, qData.answer, qData.explanation);
+                optsContainer.appendChild(btn);
+            });
+
+            document.getElementById('quiz-modal').classList.remove('hidden');
+            playSound('star');
+        }
+
+        function submitAnswer(chosenIdx, correctIdx, explanation) {
+            const optsContainer = document.getElementById('quiz-options-container');
+            const btns = optsContainer.querySelectorAll('button');
+            btns.forEach(b => b.disabled = true); // Disable further clicking
+
+            const fbBox = document.getElementById('quiz-feedback-box');
+            const fbIcon = document.getElementById('quiz-feedback-icon');
+            const fbMsg = document.getElementById('quiz-feedback-msg');
+
+            fbBox.classList.remove('hidden');
+
+            if (chosenIdx === correctIdx) {
+                // Correct Answer!
+                btns[chosenIdx].className = "w-full text-left p-3.5 sm:p-4 bg-emerald-600 border-2 border-emerald-300 rounded-2xl font-bold text-sm sm:text-base text-white flex items-center space-x-3";
+                
+                fbBox.className = "p-3.5 rounded-2xl border border-emerald-400 bg-emerald-950/80 text-emerald-200 text-sm font-bold flex items-center space-x-3";
+                fbIcon.className = "fa-solid fa-circle-check text-2xl text-emerald-400";
+                fbMsg.innerHTML = `<div><strong>BETUL! (+100 Markah)</strong><p class="text-xs font-normal mt-0.5">${explanation}</p></div>`;
+
+                if (!starsAnswered[currentQuestionIndex]) {
+                    score += 100;
+                    starsAnswered[currentQuestionIndex] = true;
+                }
+                playSound('correct');
+            } else {
+                // Wrong Answer!
+                btns[chosenIdx].className = "w-full text-left p-3.5 sm:p-4 bg-red-600 border-2 border-red-300 rounded-2xl font-bold text-sm sm:text-base text-white flex items-center space-x-3";
+                btns[correctIdx].className = "w-full text-left p-3.5 sm:p-4 bg-emerald-700 border-2 border-emerald-300 rounded-2xl font-bold text-sm sm:text-base text-white flex items-center space-x-3";
+
+                fbBox.className = "p-3.5 rounded-2xl border border-red-400 bg-red-950/80 text-red-200 text-sm font-bold flex items-center space-x-3";
+                fbIcon.className = "fa-solid fa-circle-xmark text-2xl text-red-400";
+                fbMsg.innerHTML = `<div><strong>KURANG TEPAT!</strong><p class="text-xs font-normal mt-0.5">${explanation}</p></div>`;
+                
+                playSound('wrong');
+            }
+
+            updateHUD();
+            document.getElementById('quiz-next-btn').classList.remove('hidden');
+
+            // Check if all 20 stars answered!
+            if (starsAnswered.filter(Boolean).length === 20) {
+                setTimeout(showVictoryScreen, 1500);
+            }
+        }
+
+        function nextQuestionAfterAnswer() {
+            document.getElementById('quiz-modal').classList.add('hidden');
+            currentQuestionIndex = null;
+        }
+
+        /* Star Picker Modal Logic */
+        function openStarPickerModal() {
+            const grid = document.getElementById('star-grid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < 20; i++) {
+                const btn = document.createElement('button');
+                const isSolved = starsAnswered[i];
+                btn.className = isSolved ? 
+                    "p-3 rounded-2xl bg-emerald-600 border-2 border-emerald-300 text-white font-black text-center flex flex-col items-center justify-center space-y-1 shadow-md" : 
+                    "p-3 rounded-2xl bg-slate-700 hover:bg-slate-600 border-2 border-yellow-400 text-yellow-300 font-black text-center flex flex-col items-center justify-center space-y-1 active:scale-95 transition";
+
+                btn.innerHTML = `
+                    <i class="fa-solid fa-star text-lg ${isSolved ? 'text-white' : 'text-yellow-400'}"></i>
+                    <span class="text-xs">Soalan ${i + 1}</span>
+                `;
+                btn.onclick = () => {
+                    closeModal('star-picker-modal');
+                    openQuizModal(i);
+                };
+                grid.appendChild(btn);
+            }
+
+            document.getElementById('star-picker-modal').classList.remove('hidden');
+        }
+
+        /* ===================================================================
+           7. LEADERBOARD & LOCAL STORAGE MANAGEMENT
+           =================================================================== */
+        const LEADERBOARD_KEY = 'DINO_BM_TAHUN2_LEADERBOARD_V1';
+
+        function getLeaderboard() {
+            try {
+                const data = localStorage.getItem(LEADERBOARD_KEY);
+                return data ? JSON.parse(data) : [];
+            } catch(e) {
+                return [];
+            }
+        }
+
+        function saveLeaderboardEntry(entry) {
+            const list = getLeaderboard();
+            list.push(entry);
+            // Sort by highest score, then fastest time
+            list.sort((a, b) => b.score - a.score || a.timeSec - b.timeSec);
+            try {
+                localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(list.slice(0, 50)));
+            } catch(e) {}
+        }
+
+        function openLeaderboardModal() {
+            const tbody = document.getElementById('leaderboard-tbody');
+            tbody.innerHTML = '';
+
+            const list = getLeaderboard();
+            if (list.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="p-6 text-center text-slate-400 font-medium">
+                            Belum ada rekod keputusan. Jadilah yang pertama!
+                        </td>
+                    </tr>
+                `;
+            } else {
+                list.forEach((item, idx) => {
+                    const tr = document.createElement('tr');
+                    tr.className = idx % 2 === 0 ? 'bg-slate-900/40' : 'bg-slate-800/40';
+                    tr.innerHTML = `
+                        <td class="p-3 font-bold ${idx === 0 ? 'text-yellow-400' : 'text-slate-400'}">${idx + 1}</td>
+                        <td class="p-3 font-bold text-white">${item.name}</td>
+                        <td class="p-3 font-black text-yellow-300 pixel-font text-xs">${item.score}</td>
+                        <td class="p-3 text-emerald-400 font-bold">${item.stars} / 20</td>
+                        <td class="p-3 text-red-300 font-semibold">${formatTime(item.timeSec)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            document.getElementById('leaderboard-modal').classList.remove('hidden');
+        }
+
+        function clearLeaderboardData() {
+            if (confirm("Adakah Cikgu pasti mahu memadamkan semua rekod papan pendahulu?")) {
+                localStorage.removeItem(LEADERBOARD_KEY);
+                openLeaderboardModal();
+            }
+        }
+
+        /* ===================================================================
+           8. VICTORY / END GAME DISPLAY
+           =================================================================== */
+        function showVictoryScreen() {
+            gameActive = false;
+            clearInterval(timerInterval);
+
+            const solvedStars = starsAnswered.filter(Boolean).length;
+
+            // Save Entry to Leaderboard
+            saveLeaderboardEntry({
+                name: studentName,
+                score: score,
+                stars: solvedStars,
+                diamonds: diamondsCollected,
+                timeSec: gameTimeSeconds,
+                date: new Date().toLocaleDateString('ms-MY')
+            });
+
+            document.getElementById('res-student-name').innerText = studentName;
+            document.getElementById('res-score').innerText = score;
+            document.getElementById('res-stars').innerText = `${solvedStars} / 20`;
+            document.getElementById('res-diamonds').innerText = diamondsCollected;
+            document.getElementById('res-time').innerText = formatTime(gameTimeSeconds);
+
+            const gradeBadge = document.getElementById('res-grade-badge');
+            if (solvedStars >= 18) {
+                gradeBadge.className = "bg-emerald-900/80 border-2 border-emerald-400 text-emerald-300 py-2.5 rounded-xl font-black text-sm";
+                gradeBadge.innerHTML = "🌟🌟🌟🌟🌟 TAHAP SANGAT CEMERLANG!";
+            } else if (solvedStars >= 14) {
+                gradeBadge.className = "bg-amber-900/80 border-2 border-amber-400 text-amber-300 py-2.5 rounded-xl font-black text-sm";
+                gradeBadge.innerHTML = "🌟🌟🌟🌟 TAHAP BAIK & RAJIN!";
+            } else {
+                gradeBadge.className = "bg-blue-900/80 border-2 border-blue-400 text-blue-300 py-2.5 rounded-xl font-black text-sm";
+                gradeBadge.innerHTML = "🌟🌟🌟 TERUSKAN USAHA!";
+            }
+
+            document.getElementById('victory-modal').classList.remove('hidden');
+            playSound('star');
+        }
+
+        /* Init Canvas on Window Load */
+        window.onload = function() {
+            buildMarioWorld();
+            gameLoop();
+        };
+    </script>
+</body>
+</html>
